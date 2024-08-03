@@ -1,61 +1,68 @@
 public class Turn {
+    public static final int GAME_SPACES = 8; // Spaces[0-8]
 
-    public static String[][] gameplay(String[][] board, int x, int y, String player){
+
+    // requests move from human player
+    public static String movePrompt(String player) {
+        String move;
+        // move
+        System.out.printf("\nPlayer %s: What's your move? \n", player);
+        move = Main.in.nextLine();
+        return move.toUpperCase();
+    }
+
+
+    // updates board with X or O
+    public static String[][] gameplay(String[][] board, int x, int y, String player) {
         board[x][y] = player;
         return board;
     }
 
 
-    public static int inputMove(String move, Space[] spaces, String[][] board, int tally, String player) {
+    // verifies move is playable, move is accepted as index within spaces
+    public static boolean moveVerification(int moveIndex, Space[] availableSpaces) {
+        if (moveIndex >= 0) {
+            // check if entered a playable move and marks as played
+            if (availableSpaces[moveIndex].playable) {
+                availableSpaces[moveIndex].playable = false;
+                return true;
+            }
+        }
+        return false;   // move was not playable
+    }
+
+
+    // accepts move, checks if playable,
+    public static int inputMove(String move, Space[] availableSpaces, String[][] board, int tally, String player) {
         int x = -1;
         int y = -1;
-        int GAME_SPACES = 8; // Spaces[0-8]
-        boolean validMove = false;
+        int moveIndex = -1;
 
-        // move input
+        // translating move into its index within spaces[]
         for (int i = 0; i <= GAME_SPACES; i++) {
-            if (move.equals(spaces[i].display)) {
-                x = spaces[i].coordX;
-                y = spaces[i].coordY;
-
-                // check if playable move, else mark as played
-                if (!spaces[i].playable) {
-                    System.out.printf("Sorry, %s has already been played.\n", move);
-                } else {
-                    spaces[i].playable = false;
-                    validMove = true;
-                    break;
-                }
+            if (move.equals(availableSpaces[i].display)) {
+                x = availableSpaces[i].coordX;
+                y = availableSpaces[i].coordY;
+                moveIndex = i;
             }
         }
 
-        // move validity check
-        if (!validMove) {
-            System.out.println("Sorry, that move is invalid. Please enter another move.");
+        // move validity check using index
+        if (!moveVerification(moveIndex, availableSpaces)) {
+            System.out.println("Sorry, that move is not valid. Please enter another move.");
+            return tally;
+        } else {    // move was valid
+            // update board
+            String[][] updatedBoard = gameplay(board, x, y, player);    // declaration for updatedBoard
+            Grid.printBoard(updatedBoard);
+            tally++;
             return tally;
         }
-
-        // update board
-        String[][] updatedBoard = gameplay(board, x, y, player);    // declaration for updatedBoard
-        Grid.printBoard(updatedBoard);
-
-        // check for win/draw
-        if (winCheck(updatedBoard)) {
-            System.out.printf("\nPlayer %s wins!\n", player);
-            return -1;
-        } else if (tally == GAME_SPACES) {
-            System.out.print("\nThis game is a draw!\n");
-            return -1;
-        } else {
-            tally++;
-            Grid.printAvailable(spaces);
-        }
-        return tally;
     }
 
 
 
-    public static boolean winCheck(String[][] board) {
+    public static boolean winCheck (String[][]board){
         // row and column checks
         for (int i = 1; i <= 5; i += 2) {
             // row check
@@ -79,4 +86,20 @@ public class Turn {
         }
         return false;
     }
+
+
+    public static boolean winAnnounce(String[][] board, String player, int tally) {
+        boolean win = winCheck(board);
+
+        if (win) {
+            System.out.printf("\nPlayer %s wins!\n", player);
+            return true;
+        } else if (tally == GAME_SPACES + 1) {
+            System.out.print("\nThis game is a draw!\n");
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
