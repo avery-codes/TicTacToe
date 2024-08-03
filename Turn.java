@@ -6,7 +6,7 @@ public class Turn {
     }
 
 
-    public static int inputMove(String move, Main.Space[] spaces, String[][] board, int tally, String player) {
+    public static int inputMove(String move, Space[] spaces, String[][] board, int tally, String player) {
         int x = -1;
         int y = -1;
         int GAME_SPACES = 8; // Spaces[0-8]

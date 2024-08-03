@@ -52,7 +52,7 @@ public class Grid {
     }
 
 
-    public static void printAvailable(Main.Space[] availableSpaces) {
+    public static void printAvailable(Space[] availableSpaces) {
         System.out.print("\nAvailable spaces: ");
         for (int j = 0; j < availableSpaces.length; j++) {
             if (availableSpaces[j].playable) {
