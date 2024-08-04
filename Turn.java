@@ -20,11 +20,11 @@ public class Turn {
 
 
     // verifies move is playable, move is accepted as index within spaces
-    public static boolean moveVerification(int moveIndex, Space[] availableSpaces) {
-        if (moveIndex >= 0) {
+    public static boolean moveVerification(Space moveSpace) {
+        if (moveSpace !=  null) {
             // check if entered a playable move and marks as played
-            if (availableSpaces[moveIndex].playable) {
-                availableSpaces[moveIndex].playable = false;
+            if (moveSpace.playable) {
+               moveSpace.playable = false;
                 return true;
             }
         }
@@ -32,34 +32,36 @@ public class Turn {
     }
 
 
+
     // accepts move, checks if playable,
     public static int inputMove(String move, Space[] availableSpaces, String[][] board, int tally, String player) {
-        int x = -1;
-        int y = -1;
-        int moveIndex = -1;
+        Space moveSpace = null;
 
-        // translating move into its index within spaces[]
-        for (int i = 0; i <= GAME_SPACES; i++) {
+        for (int i = 0; i < availableSpaces.length; i++) {
             if (move.equals(availableSpaces[i].display)) {
-                x = availableSpaces[i].coordX;
-                y = availableSpaces[i].coordY;
-                moveIndex = i;
+                moveSpace = availableSpaces[i];
             }
         }
 
-        // move validity check using index
-        if (!moveVerification(moveIndex, availableSpaces)) {
-            System.out.println("Sorry, that move is not valid. Please enter another move.");
-            return tally;
-        } else {    // move was valid
-            // update board
-            String[][] updatedBoard = gameplay(board, x, y, player);    // declaration for updatedBoard
-            Grid.printBoard(updatedBoard);
-            tally++;
+        // error control
+        if (moveSpace == null) {
+            System.out.println("Error getting move index. Please enter move again.");
             return tally;
         }
-    }
 
+        // move validity check using index
+        if (!moveVerification(moveSpace)){
+            System.out.println("Sorry, that move is not valid. Please enter another move.");
+            return tally;
+
+        } else {    // move was valid
+            // update board
+            String[][] updatedBoard = gameplay(board, moveSpace.coordX, moveSpace.coordY, player);
+            Grid.printBoard(updatedBoard);
+            tally++;
+        }
+        return tally;
+    }
 
 
     public static boolean winCheck (String[][]board){
@@ -100,6 +102,13 @@ public class Turn {
         } else {
             return false;
         }
+    }
+
+
+    public static int humanPlayer(String player, int tally, Space[] availableSpaces, String[][] board){
+        String move = Turn.movePrompt(player);
+        tally = Turn.inputMove(move, availableSpaces, board, tally, player);
+        return tally;
     }
 
 }
